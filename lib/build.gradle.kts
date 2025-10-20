@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -11,7 +10,7 @@ plugins {
 }
 
 object MySettings {
-    val versionName: String = "2.2.0"
+    val versionName: String = "2.2.3"
     val namespace = "my.nanihadesuka.lazycolumnscrollbar"
 }
 
@@ -85,21 +84,6 @@ kotlin {
     }
 
     jvm()
-
-    js {
-        browser()
-        nodejs()
-        binaries.executable()
-        binaries.library()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        nodejs()
-        binaries.executable()
-        binaries.library()
-    }
 
     iosX64()
     iosArm64()
