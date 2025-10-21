@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "my.nanihadesuka.lazycolumnscrollbar.sample"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "my.nanihadesuka.lazycolumnscrollbar"

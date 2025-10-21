@@ -1,5 +1,9 @@
 package my.nanihadesuka.compose.controller
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemInfo
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
@@ -81,37 +85,23 @@ internal fun rememberLazyStaggeredGridStateController(
 
     fun LazyStaggeredGridItemInfo.fractionHiddenTop(firstItemOffset: Int): Float {
         return when (orientationUpdated.value) {
-            Orientation.Vertical -> if (size.height == 0) 0f else firstItemOffset / size.width.toFloat()
+            Orientation.Vertical -> if (size.height == 0) 0f else firstItemOffset / size.height.toFloat()
             Orientation.Horizontal -> if (size.width == 0) 0f else firstItemOffset / size.width.toFloat()
         }
     }
 
-    fun LazyStaggeredGridItemInfo.fractionVisibleBottom(viewportEndOffset: Int): Float {
-        return when (orientationUpdated.value) {
-            Orientation.Vertical -> if (size.height == 0) 0f else (viewportEndOffset - offset.y).toFloat() / size.height.toFloat()
-            Orientation.Horizontal -> if (size.width == 0) 0f else (viewportEndOffset - offset.x).toFloat() / size.width.toFloat()
+    val thumbSizeNormalizedReal = remember(state.layoutInfo.totalItemsCount) { mutableStateOf(
+        state.layoutInfo.let {
+            if (it.totalItemsCount == 0) return@let 0f
+
+            // to avoid change of size while scrolling approximate the thumb size
+            // with initial number of visible items / total items count
+            val visibleItems = ceil(it.visibleItemsInfo.size.toFloat() / nElementsMainAxis.value.toFloat()) - if (isStickyHeaderInAction.value) 1f else 0f
+            val totalItems = ceil(it.totalItemsCount.toFloat() / nElementsMainAxis.value.toFloat())
+
+            visibleItems / totalItems
         }
-    }
-
-    val thumbSizeNormalizedReal = remember {
-        derivedStateOf {
-            state.layoutInfo.let {
-                if (it.totalItemsCount == 0)
-                    return@let 0f
-
-                val firstItem = realFirstVisibleItem.value ?: return@let 0f
-                val firstPartial =
-                    firstItem.fractionHiddenTop(state.firstVisibleItemScrollOffset)
-                val lastPartial =
-                    1f - it.visibleItemsInfo.last().fractionVisibleBottom(it.viewportEndOffset)
-
-                val realSize =
-                    ceil(it.visibleItemsInfo.size.toFloat() / nElementsMainAxis.value.toFloat()) - if (isStickyHeaderInAction.value) 1f else 0f
-                val realVisibleSize = realSize - firstPartial - lastPartial
-                realVisibleSize / ceil(it.totalItemsCount.toFloat() / nElementsMainAxis.value.toFloat())
-            }
-        }
-    }
+    )}
 
     val thumbSizeNormalized = remember {
         derivedStateOf {
@@ -150,10 +140,18 @@ internal fun rememberLazyStaggeredGridStateController(
                         state.firstVisibleItemScrollOffset
                     )
                 } / ceil(it.totalItemsCount.toFloat() / nElementsMainAxis.value.toFloat())
+
                 offsetCorrection(top)
             }
         }
     }
+
+    // Animate thumb offset to smooth jump up and down
+    val animatedThumbOffsetNormalized = animateFloatAsState(
+        targetValue = thumbOffsetNormalized.value,
+        animationSpec = tween(durationMillis = 200, easing = LinearEasing),
+        label = "ScrollbarAnimation"
+    )
 
     val thumbIsInAction = remember {
         derivedStateOf {
@@ -165,7 +163,7 @@ internal fun rememberLazyStaggeredGridStateController(
         LazyStaggeredGridStateController(
             thumbSizeNormalized = thumbSizeNormalized,
             thumbSizeNormalizedReal = thumbSizeNormalizedReal,
-            thumbOffsetNormalized = thumbOffsetNormalized,
+            thumbOffsetNormalized = animatedThumbOffsetNormalized,
             thumbIsInAction = thumbIsInAction,
             _isSelected = isSelected,
             dragOffset = dragOffset,
