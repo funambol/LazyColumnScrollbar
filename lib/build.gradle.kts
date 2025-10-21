@@ -10,13 +10,13 @@ plugins {
 }
 
 object MySettings {
-    val versionName: String = "2.2.3"
-    val namespace = "my.nanihadesuka.lazycolumnscrollbar"
+    const val versionName: String = "2.2.6"
+    const val namespace = "my.nanihadesuka.lazycolumnscrollbar"
 }
 
 android {
     namespace = MySettings.namespace
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
@@ -43,7 +43,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    @Suppress("UnstableApiUsage")
     testOptions {
         unitTests {
             isIncludeAndroidResources = true

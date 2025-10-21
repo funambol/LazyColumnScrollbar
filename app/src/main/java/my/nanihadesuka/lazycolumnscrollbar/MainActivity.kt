@@ -43,6 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -518,11 +519,11 @@ fun PopupView(show: Boolean) {
                 tonalElevation = 4.dp
             ) {
                 val selectedTab = rememberSaveable { mutableStateOf(TypeTab.Column) }
-                val listSize = rememberSaveable { mutableStateOf(50) }
+                val listSize = rememberSaveable { mutableIntStateOf(50) }
 
                 Column(modifier = Modifier.padding(16.dp)) {
                     FlowRow {
-                        for (type in TypeTab.values()) {
+                        for (type in TypeTab.entries) {
                             Text(
                                 text = type.name,
                                 modifier = Modifier
@@ -540,13 +541,13 @@ fun PopupView(show: Boolean) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "List size: ${listSize.value}")
+                        Text(text = "List size: ${listSize.intValue}")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Button(onClick = { if (listSize.value > 0) listSize.value-- }) {
+                        Button(onClick = { if (listSize.intValue > 0) listSize.intValue-- }) {
                             Text("-")
                         }
                         Spacer(modifier = Modifier.width(4.dp))
-                        Button(onClick = { listSize.value++ }) {
+                        Button(onClick = { listSize.intValue++ }) {
                             Text("+")
                         }
                     }
@@ -554,15 +555,15 @@ fun PopupView(show: Boolean) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     when (selectedTab.value) {
-                        TypeTab.Column -> ColumnView(itemCount = listSize.value)
-                        TypeTab.Row -> RowView(itemCount = listSize.value)
-                        TypeTab.LazyColumn -> LazyColumnView(itemCount = listSize.value)
-                        TypeTab.LazyRow -> LazyRowView(itemCount = listSize.value)
-                        TypeTab.LazyVerticalGrid -> LazyVerticalGridView(itemCount = listSize.value)
-                        TypeTab.LazyHorizontalGrid -> LazyHorizontalGridView(itemCount = listSize.value)
-                        TypeTab.LazyVerticalStaggeredGrid -> LazyVerticalStaggeredGridView(itemCount = listSize.value)
+                        TypeTab.Column -> ColumnView(itemCount = listSize.intValue)
+                        TypeTab.Row -> RowView(itemCount = listSize.intValue)
+                        TypeTab.LazyColumn -> LazyColumnView(itemCount = listSize.intValue)
+                        TypeTab.LazyRow -> LazyRowView(itemCount = listSize.intValue)
+                        TypeTab.LazyVerticalGrid -> LazyVerticalGridView(itemCount = listSize.intValue)
+                        TypeTab.LazyHorizontalGrid -> LazyHorizontalGridView(itemCount = listSize.intValue)
+                        TypeTab.LazyVerticalStaggeredGrid -> LazyVerticalStaggeredGridView(itemCount = listSize.intValue)
                         TypeTab.LazyHorizontalStaggeredGrid -> LazyHorizontalStaggeredGridView(
-                            itemCount = listSize.value
+                            itemCount = listSize.intValue
                         )
 
                         TypeTab.Popup -> {}
